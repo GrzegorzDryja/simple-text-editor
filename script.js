@@ -8,15 +8,16 @@ document.addEventListener("selectionchange", () => {
   })
 
 function makeItBold(){
-  const startOfSelectedText = selection.anchorOffset;
-  const endOfSelectedText = selection.focusOffset;
-  const firstTextNode = selection.anchorNode;
-  const lastTextNode = selection.focusNode;
+  //Yep... crazy logic for handling left-right/right-left selection
+  const startOfSelectedText = selection.anchorOffset <= selection.focusOffset ? selection.anchorOffset : selection.focusOffset;
+  const endOfSelectedText = startOfSelectedText == selection.anchorOffset ? selection.focusOffset : selection.anchorOffset;
+  const firstTextNode = startOfSelectedText == selection.anchorOffset ? selection.anchorNode : selection.focusNode;
+  const lastTextNode = firstTextNode == selection.anchorNode ? selection.focusNode : selection.anchorNode;
 
   let range = new Range();
   let bNode = document.createElement('b');
 
-  range.setStart(firstTextNode, startOfSelectedText); //only left to right selection in this scenario
+  range.setStart(firstTextNode, startOfSelectedText);
   range.setEnd(lastTextNode, endOfSelectedText)
 
   let b = document.createElement('b');
