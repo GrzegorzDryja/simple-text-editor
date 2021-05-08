@@ -11,28 +11,20 @@ document.getElementById("editor").addEventListener("keyup", (event) => {
 })
 
 function calculateSelectedText(selection){
-  console.log(selection.toString())
-  // const startOfSelectedText = selection.anchorOffset;
-  // const endOfSelectedText = selection.focusOffset;
-  // let selectedText = "";
-  // if (startOfSelectedText <= endOfSelectedText && selection.anchorNode == selection.focusNode){
-  //   selectedText = selection.anchorNode.textContent.slice(startOfSelectedText, endOfSelectedText)
-  // }
-  // if (startOfSelectedText >= endOfSelectedText && selection.anchorNode == selection.focusNode){
-  //   selectedText = selection.anchorNode.textContent.slice(endOfSelectedText, startOfSelectedText)
-  // }
-  // if (selection.anchorNode !== selection.focusNode){
-  //   let range = new Range();
-  //   firstTextNode = selection.anchorNode;
-  //   lastTextNode = selection.focusNode;
+  let startOfSelectedText = selection.anchorOffset;
+  let endOfSelectedText = selection.focusOffset;
+  const firstTextNode = selection.anchorNode;
+  const lastTextNode = selection.focusNode;
 
-  //   range.setStart(firstTextNode, startOfSelectedText);
-  //   range.setEnd(lastTextNode, endOfSelectedText);
-  //   console.log(firstTextNode)
-  //   console.log(range);
+  console.log(selection.toString()); //This works on both direction
+  
+  let range = new Range();
 
+  range.setStart(firstTextNode, startOfSelectedText);
+  range.setEnd(lastTextNode, endOfSelectedText)
 
-    // selectedText += selection.anchorNode.textContent.substring(startOfSelectedText);
-    // selectedText += selection.focusNode.textContent.substring(0, endOfSelectedText)
-    //First node cated from start... + next node + ... + last node cated to end...
-  }
+  document.getSelection().removeAllRanges();
+  document.getSelection().addRange(range);
+  console.log(range.toString()); //This dosn't work form left to right, selection is reset
+
+}
