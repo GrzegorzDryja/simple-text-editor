@@ -15,23 +15,18 @@ function makeItBold(){
   const lastTextNode = firstTextNode == selection.anchorNode ? selection.focusNode : selection.anchorNode;
 
   let range = new Range();
-  let bNode = document.createElement('b');
-
+  
   range.setStart(firstTextNode, startOfSelectedText);
   range.setEnd(lastTextNode, endOfSelectedText)
-
+  
   let b = document.createElement('b');
   try {
-    range.surroundContents(b); //Works, but... user select is lost, and dosn't work on selection like "<b>sfsfa" with no clossing tag
+    range.surroundContents(b); //Works, but... dosn't work on selection like "<b>sfsfa" with no clossing tag
   } catch(e) { console.log(e) }    
 
-  // bNode.innerHTML = selection.toString(); //It lost all other html elements
-  // bNode.innerHTML = range.cloneContents().childNodes[0].textContent;
-  // console.log(range.cloneContents());
-  // selection.removeAllRanges(); //It lost also user select
-  // selection.addRange(range);    
-  // range.insertNode(bNode);
-  // range.deleteContents()
+  selection.removeAllRanges();
+  selection.addRange(range);
+
   bold = true;
 }
 
