@@ -15,20 +15,37 @@ function format(style){
     const firstTextNode = startOfSelectedText == selection.anchorOffset ? selection.anchorNode : selection.focusNode;
     const lastTextNode = firstTextNode == selection.anchorNode ? selection.focusNode : selection.anchorNode;
   
-    let range = new Range();
+    const range = new Range();    
+          range.setStart(firstTextNode, startOfSelectedText);
+          range.setEnd(lastTextNode, endOfSelectedText)
     
-    range.setStart(firstTextNode, startOfSelectedText);
-    range.setEnd(lastTextNode, endOfSelectedText)
-    
-    let formatHtmlElement= document.createElement(style);
     try {
-      range.surroundContents(formatHtmlElement); //Works, but... dosn't work on selection like "<b>sfsfa" with no clossing tag
+      const formatHtmlElement = document.createElement(style);
+      const clonedHtmlSelection = [];
+
+      if(range.cloneContents().hasChildNodes()){
+        range.cloneContents().childNodes.
+          forEach(element => clonedHtmlSelection.push(element.textContent))     
+      } else {
+        clonedHtmlSelection.push(range.commonAncestorContainer.parentElement.childNodes[0]);
+        range.commonAncestorContainer.parentElement.nextElementSibling.childNodes.
+          forEach(element => clonedHtmlSelection.push(element.textContent))
+      }
+      
+      console.log(clonedHtmlSelection)
+
+      // let formatedHtmlSelection = `<${style}>${clonedHtmlSelection}</${style}>`
+      clonedHtmlSelection.forEach(element => formatHtmlElement.textContent += element);
+      range.deleteContents(); //It delete also parent html element
+      range.insertNode(formatHtmlElement)
+      console.log(formatHtmlElement);    
+    
     } catch(e) { console.log(e) }    
   
     selection.removeAllRanges();
     selection.addRange(range);
   
-  console.log(`Someday I will ${style} this text... ${range.toString()}`)
+  console.log(`Someday I will ${style} this text... ${range.toString()}`) //I delete content of range
   } else {
     alert("There is no style match!")
   }
