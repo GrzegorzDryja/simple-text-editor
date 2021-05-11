@@ -10,15 +10,22 @@ document.addEventListener("selectionchange", () => {
 function format(style){
   if(style === "b" || style === "i"){
     //Yep... crazy logic for handling left-right/right-left selection to pass in Range
-    const startOfSelectedText = selection.anchorOffset <= selection.focusOffset ? selection.anchorOffset : selection.focusOffset;
-    const endOfSelectedText = startOfSelectedText == selection.anchorOffset ? selection.focusOffset : selection.anchorOffset;
-    const firstTextNode = startOfSelectedText == selection.anchorOffset ? selection.anchorNode : selection.focusNode;
-    const lastTextNode = firstTextNode == selection.anchorNode ? selection.focusNode : selection.anchorNode;
+    // const startOfSelectedText = selection.anchorOffset <= selection.focusOffset ? selection.anchorOffset : selection.focusOffset;
+    // const endOfSelectedText = startOfSelectedText == selection.anchorOffset ? selection.focusOffset : selection.anchorOffset;
+    // const firstTextNode = startOfSelectedText == selection.anchorOffset ? selection.anchorNode : selection.focusNode;
+    // const lastTextNode = firstTextNode == selection.anchorNode ? selection.focusNode : selection.anchorNode;
   
+    const startOfSelectedText = selection.anchorOffset;
+    const endOfSelectedText = selection.focusOffset;
+    const firstTextNode = selection.anchorNode;
+    const lastTextNode = selection.focusNode;
+  
+
     const range = new Range();    
           range.setStart(firstTextNode, startOfSelectedText);
           range.setEnd(lastTextNode, endOfSelectedText)
     
+          console.log(range.cloneContents());
     try {
       const formatHtmlElement = document.createElement(style);
       const clonedHtmlSelection = [];
@@ -34,7 +41,7 @@ function format(style){
       
       console.log(clonedHtmlSelection)
 
-      // let formatedHtmlSelection = `<${style}>${clonedHtmlSelection}</${style}>`
+      let formatedHtmlSelection = `<${style}>${clonedHtmlSelection}</${style}>`
       clonedHtmlSelection.forEach(element => formatHtmlElement.textContent += element);
       range.deleteContents(); //It delete also parent html element
       range.insertNode(formatHtmlElement)
