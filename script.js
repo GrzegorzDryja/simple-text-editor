@@ -9,51 +9,56 @@ document.addEventListener("selectionchange", () => {
 
 function format(style){
   if(style === "b" || style === "i"){
-    //Yep... crazy logic for handling left-right/right-left selection to pass in Range
-    // const startOfSelectedText = selection.anchorOffset <= selection.focusOffset ? selection.anchorOffset : selection.focusOffset;
-    // const endOfSelectedText = startOfSelectedText == selection.anchorOffset ? selection.focusOffset : selection.anchorOffset;
-    // const firstTextNode = startOfSelectedText == selection.anchorOffset ? selection.anchorNode : selection.focusNode;
-    // const lastTextNode = firstTextNode == selection.anchorNode ? selection.focusNode : selection.anchorNode;
-  
-    const startOfSelectedText = selection.anchorOffset;
-    const endOfSelectedText = selection.focusOffset;
-    const firstTextNode = selection.anchorNode;
-    const lastTextNode = selection.focusNode;
-  
-
     const range = new Range();    
-          range.setStart(firstTextNode, startOfSelectedText);
-          range.setEnd(lastTextNode, endOfSelectedText)
-    
-          console.log(range.cloneContents());
+    //for right --> left selection
+    // range.setStart(selection.focusNode, selection.focusOffset);
+    // range.setEnd(selection.anchorNode, selection.anchorOffset);
+    range.setStart(selection.anchorNode, selection.anchorOffset);
+    range.setEnd(selection.focusNode, selection.focusOffset);
+
     try {
       const formatHtmlElement = document.createElement(style);
-      const clonedHtmlSelection = [];
+      let clonedHtmlElements = [];
+      let clonedHtmltextContent = [];
 
-      if(range.cloneContents().hasChildNodes()){
-        range.cloneContents().childNodes.
-          forEach(element => clonedHtmlSelection.push(element.textContent))     
-      } else {
-        clonedHtmlSelection.push(range.commonAncestorContainer.parentElement.childNodes[0]);
-        range.commonAncestorContainer.parentElement.nextElementSibling.childNodes.
-          forEach(element => clonedHtmlSelection.push(element.textContent))
-      }
+      range.cloneContents().childNodes.
+          forEach(element => {
+            console.log(element);
+            
+              // element.appendChild(formatHtmlElement);
+              formatHtmlElement.textContent = element.textContent;
+              range.deleteContents(); //usuwa pierwsze dziecko
+              console.log(formatHtmlElement)
+              range.insertNode(formatHtmlElement)
+              // clonedHtmlElements.push(element)
+              // console.log(element)
+              // clonedHtmltextContent.push(formatHtmlElement.textContent  = element.textContent)
+            
+          })     
+      // console.log(clonedHtmlElements); //traci dzieci
+      // console.log(clonedHtmltextContent);
+      // clonedHtmlElements.forEach((element, i) => {
+      //   element.textContent = clonedHtmltextContent[i]
+        // console.log(element)
+         //Taka logika dodaje pusty łamacz wiersza w czystym tekście, usuwa ostatni znak i dodaje akapit
+      // })    
       
-      console.log(clonedHtmlSelection)
-
-      let formatedHtmlSelection = `<${style}>${clonedHtmlSelection}</${style}>`
-      clonedHtmlSelection.forEach(element => formatHtmlElement.textContent += element);
-      range.deleteContents(); //It delete also parent html element
-      range.insertNode(formatHtmlElement)
-      console.log(formatHtmlElement);    
+         
     
     } catch(e) { console.log(e) }    
   
     selection.removeAllRanges();
     selection.addRange(range);
-  
-  console.log(`Someday I will ${style} this text... ${range.toString()}`) //I delete content of range
-  } else {
-    alert("There is no style match!")
   }
 }
+
+document.getElementById("save").addEventListener("click", () => {
+  const edited = {innerHTML: `${document.getElementById("editor").innerHTML}`};
+  console.log(edited)
+  const a = document.createElement("a");
+  const file = new Blob([JSON.stringify(edited)], {type: 'text/plain'});
+  a.href = URL.createObjectURL(file);
+  a.download = "mój plik. jsosn.txt";
+  a.click();
+  URL.revokeObjectURL(a.href)
+})
