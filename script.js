@@ -7,6 +7,37 @@ document.addEventListener("selectionchange", () => {
     selection = document.getSelection();
   })
 
+document.getElementById("save").addEventListener("click", () => {
+  const edited = {innerHTML: `${document.getElementById("editor").innerHTML}`};
+  const a = document.createElement("a");
+  const file = new Blob([JSON.stringify(edited)], {type: "text/plain"});
+  a.href = URL.createObjectURL(file);
+  a.download = `${Date()}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href)
+})
+
+document.getElementById("read").addEventListener("click", () => {
+  if(document.getElementById("file").files.length == 0) {
+    alert("Select file");
+    return;
+  }
+
+  const file = document.getElementById("file").files[0];
+  const reader = new FileReader();
+
+  reader.addEventListener("load", (event) => {
+    const loadedFile = JSON.parse(event.target.result)
+    document.getElementById("editor").innerHTML = loadedFile.innerHTML;
+  });
+
+  reader.addEventListener("error", function(error) {
+    alert(`ERROR: ${error}`);
+  });
+
+  reader.readAsText(file);
+});  
+
 function format(style){
   if(style === "b" || style === "i"){
     const range = new Range();    
@@ -41,9 +72,7 @@ function format(style){
       //   element.textContent = clonedHtmltextContent[i]
         // console.log(element)
          //Taka logika dodaje pusty łamacz wiersza w czystym tekście, usuwa ostatni znak i dodaje akapit
-      // })    
-      
-         
+      // })        
     
     } catch(e) { console.log(e) }    
   
@@ -51,14 +80,3 @@ function format(style){
     selection.addRange(range);
   }
 }
-
-document.getElementById("save").addEventListener("click", () => {
-  const edited = {innerHTML: `${document.getElementById("editor").innerHTML}`};
-  console.log(edited)
-  const a = document.createElement("a");
-  const file = new Blob([JSON.stringify(edited)], {type: 'text/plain'});
-  a.href = URL.createObjectURL(file);
-  a.download = "mój plik. jsosn.txt";
-  a.click();
-  URL.revokeObjectURL(a.href)
-})
