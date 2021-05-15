@@ -5,6 +5,22 @@ let unorderedList = false;
 
 document.addEventListener("selectionchange", () => {
     selection = document.getSelection();
+ 
+    if (selection.anchorNode.parentNode.nodeName === "B" &&
+        selection.focusNode.parentNode.nodeName === "B"){
+          bold = true;
+      } else {
+        bold = false;
+      }
+      bold ? document.getElementById("bold").classList.add("active") : document.getElementById("bold").classList.remove("active")
+
+    if (selection.anchorNode.parentNode.nodeName === "I" &&
+        selection.focusNode.parentNode.nodeName === "I"){
+          italic = true;
+      } else {
+        italic = false;
+      }
+      italic ? document.getElementById("italic").classList.add("activei") : document.getElementById("italic").classList.remove("activei")
   })
 
 document.getElementById("save").addEventListener("click", () => {
@@ -51,30 +67,47 @@ function getSelection(){
 
 function format(style){
   const range = getSelection();
+  const clonedRange = range.cloneContents();
+  let formatedRange = document.getElementById("editor2");
 
-  if(style === "b" || style === "i"){
-    try {
-      let clonedRange = range.cloneContents();
-      let formatedRange = document.getElementById("editor2");
-      let formatHtmlElement = document.createElement(style);
-      
-      function checkForLastNode(parent) {        
-        if (parent.childNodes.length == 0){
-          formatHtmlElement.appendChild(parent.cloneNode(true));
-          formatedRange.appendChild(formatHtmlElement);
-          console.log(formatedRange)
-        } else {
-          parent.childNodes.forEach(element => {
-            // formatedRange.appendChild(element.cloneNode(true));
-            checkForLastNode(element);
-          })
+  try {    
+    if(
+      style === "b" && bold === false ||
+      style === "i" && italic === false){
+
+        function styleTextElement(parent) {   
+          let formatHtmlElement = document.createElement(style);
+              formatHtmlElement.appendChild(parent);
+
+          return formatHtmlElement;    
         }
-      };
+       
+      function everyChild(tree){
+        tree.childNodes.forEach(element => {
+          if(element.nodeType == 3){
+            let formated = tree.appendChild(styleTextElement(tree))
 
-      // console.log(clonedRange);
-      // formatHtmlElement.appendChild()
-      checkForLastNode(clonedRange)
+            range.deleteContents();
+            range.insertNode(formated)
+          }
+        })
+      }
+      everyChild(clonedRange);
+    } else if(
+      style === "b" && bold === true ||
+      style === "i" && italic === true){
+        console.log("usuwam")
+        style === "b" ? bold = false : italic = false;
+      
+        range.deleteContents();
+        range.insertNode(clonedRange)      
 
+      }    
+          //   if(element.childNodes.length > 0){
+          //     console.log(element)
+          //   }
+          //   everyChild(element);
+          // })
 
       // clonedRange.childNodes.
       //   forEach(firstNode => {
@@ -96,8 +129,7 @@ function format(style){
   
       //           }
   
-      //           // range.deleteContents();
-      //           // range.insertNode(formatHtmlElement)
+
       //         }) 
       //           // clonedHtmlElements.push(element)
       //           // console.log(element)
@@ -118,5 +150,6 @@ function format(style){
   
     selection.removeAllRanges();
     selection.addRange(range);
-  }
+  
 }
+
