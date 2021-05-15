@@ -18,17 +18,17 @@ document.getElementById("save").addEventListener("click", () => {
 })
 
 document.getElementById("read").addEventListener("click", () => {
+  const file = document.getElementById("file").files[0];
+  const reader = new FileReader();
+
   if(document.getElementById("file").files.length == 0) {
     alert("Select file");
     return;
   }
 
-  const file = document.getElementById("file").files[0];
-  const reader = new FileReader();
-
   reader.addEventListener("load", (event) => {
     const loadedFile = JSON.parse(event.target.result)
-    document.getElementById("editor").innerHTML = loadedFile.innerHTML;
+    document.getElementById("editor2").innerHTML = loadedFile.innerHTML;
   });
 
   reader.addEventListener("error", function(error) {
@@ -36,36 +36,76 @@ document.getElementById("read").addEventListener("click", () => {
   });
 
   reader.readAsText(file);
-});  
+});
+
+function getSelection(){
+  const range = new Range();    
+  //for right --> left selection
+  // range.setStart(selection.focusNode, selection.focusOffset);
+  // range.setEnd(selection.anchorNode, selection.anchorOffset);
+  range.setStart(selection.anchorNode, selection.anchorOffset);
+  range.setEnd(selection.focusNode, selection.focusOffset);
+
+  return range;
+}
 
 function format(style){
+  const range = getSelection();
+
   if(style === "b" || style === "i"){
-    const range = new Range();    
-    //for right --> left selection
-    // range.setStart(selection.focusNode, selection.focusOffset);
-    // range.setEnd(selection.anchorNode, selection.anchorOffset);
-    range.setStart(selection.anchorNode, selection.anchorOffset);
-    range.setEnd(selection.focusNode, selection.focusOffset);
-
     try {
-      const formatHtmlElement = document.createElement(style);
-      let clonedHtmlElements = [];
-      let clonedHtmltextContent = [];
+      let clonedRange = range.cloneContents();
+      let formatedRange = document.getElementById("editor2");
+      let formatHtmlElement = document.createElement(style);
+      
+      function checkForLastNode(parent) {        
+        if (parent.childNodes.length == 0){
+          formatHtmlElement.appendChild(parent.cloneNode(true));
+          formatedRange.appendChild(formatHtmlElement);
+          console.log(formatedRange)
+        } else {
+          parent.childNodes.forEach(element => {
+            // formatedRange.appendChild(element.cloneNode(true));
+            checkForLastNode(element);
+          })
+        }
+      };
 
-      range.cloneContents().childNodes.
-          forEach(element => {
-            console.log(element);
-            
-              // element.appendChild(formatHtmlElement);
-              formatHtmlElement.textContent = element.textContent;
-              range.deleteContents(); //usuwa pierwsze dziecko
-              console.log(formatHtmlElement)
-              range.insertNode(formatHtmlElement)
-              // clonedHtmlElements.push(element)
-              // console.log(element)
-              // clonedHtmltextContent.push(formatHtmlElement.textContent  = element.textContent)
-            
-          })     
+      // console.log(clonedRange);
+      // formatHtmlElement.appendChild()
+      checkForLastNode(clonedRange)
+
+
+      // clonedRange.childNodes.
+      //   forEach(firstNode => {
+      //     let one = firstNode;
+
+      //     if (firstNode.nodeType == 3){
+      //     } else {
+
+      //       firstNode.childNodes.
+      //         forEach(secondNode => {
+      //           let two = secondNode;
+  
+      //           if(secondNode.nodeType == 3){
+      //             formatHtmlElement.appendChild(two.cloneNode(true));
+      //             one.appendChild(formatHtmlElement.cloneNode(true));
+      //             formatedRange.appendChild(formatHtmlElement.cloneNode(true)); 
+      //           } else {
+      //             one.appendChild(secondNode.cloneNode(true));
+  
+      //           }
+  
+      //           // range.deleteContents();
+      //           // range.insertNode(formatHtmlElement)
+      //         }) 
+      //           // clonedHtmlElements.push(element)
+      //           // console.log(element)
+      //           // clonedHtmltextContent.push(formatHtmlElement.textContent  = element.textContent)
+      //     }
+      //   }) 
+
+      // document.getElementById("editor2").appendChild(clonedRange);
       // console.log(clonedHtmlElements); //traci dzieci
       // console.log(clonedHtmltextContent);
       // clonedHtmlElements.forEach((element, i) => {
