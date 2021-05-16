@@ -4,29 +4,37 @@ let italic = false;
 let unorderedList = false;
 
 document.addEventListener("selectionchange", () => {
-    selection = document.getSelection();
- 
-    if (selection.anchorNode.parentNode.nodeName === "B" &&
-        selection.focusNode.parentNode.nodeName === "B"){
-          bold = true;
-      } else {
-        bold = false;
-      }
-      bold ? document.getElementById("bold").classList.add("active") : document.getElementById("bold").classList.remove("active")
+  selection = document.getSelection();
 
-    if (selection.anchorNode.parentNode.nodeName === "I" &&
-        selection.focusNode.parentNode.nodeName === "I"){
-          italic = true;
-      } else {
-        italic = false;
-      }
-      italic ? document.getElementById("italic").classList.add("activei") : document.getElementById("italic").classList.remove("activei")
-  })
+  if (selection.anchorNode.parentNode.nodeName === "B"
+    && selection.focusNode.parentNode.nodeName === "B"){
+      bold = true;
+  } else {
+      bold = false;
+  }
+
+  bold ?
+  document.getElementById("bold").classList.add("active")
+  : document.getElementById("bold").classList.remove("active");
+
+  if (selection.anchorNode.parentNode.nodeName === "I"
+    && selection.focusNode.parentNode.nodeName === "I"){
+      italic = true;
+  } else {
+      italic = false;
+  }
+
+  italic ?
+  document.getElementById("italic").classList.add("activei")
+  : document.getElementById("italic").classList.remove("activei");
+})
 
 document.getElementById("save").addEventListener("click", () => {
-  const edited = {innerHTML: `${document.getElementById("editor").innerHTML}`};
+  const edited =
+    {innerHTML: `${document.getElementById("editor").innerHTML}`};
   const a = document.createElement("a");
-  const file = new Blob([JSON.stringify(edited)], {type: "text/plain"});
+  const file =
+    new Blob([JSON.stringify(edited)], {type: "text/plain"});
   a.href = URL.createObjectURL(file);
   a.download = `${Date()}.txt`;
   a.click();
@@ -39,7 +47,7 @@ document.getElementById("read").addEventListener("click", () => {
 
   if(document.getElementById("file").files.length == 0) {
     alert("Select file");
-    return;
+  return;
   }
 
   reader.addEventListener("load", (event) => {
@@ -68,83 +76,47 @@ function getSelection(){
 function format(style){
   const range = getSelection();
   const clonedRange = range.cloneContents();
-  let formatedRange = document.getElementById("editor2");
 
   try {    
-    if(
-      style === "b" && bold === false ||
-      style === "i" && italic === false){
+    if(style === "b" && bold === false
+      || style === "i" && italic === false){
 
-        function styleTextElement(parent) {   
-          let formatHtmlElement = document.createElement(style);
-              formatHtmlElement.appendChild(parent);
+      function styleTextElement(elementToStyle) {   
+        let formatHtmlElement = document.createElement(style);
+            formatHtmlElement.appendChild(elementToStyle);
 
-          return formatHtmlElement;    
-        }
+      return formatHtmlElement;    
+      }
        
       function everyChild(tree){
-        tree.childNodes.forEach(element => {
-          if(element.nodeType == 3){
-            let formated = tree.appendChild(styleTextElement(tree))
-
-            range.deleteContents();
-            range.insertNode(formated)
-          }
-        })
+        if(tree.nodeType === 11){
+          tree.replaceChildren(styleTextElement(tree.cloneNode(true)));    //Will work on paragraph (parent elements) later   
+        }
+          range.deleteContents();
+          range.insertNode(tree);
       }
+
       everyChild(clonedRange);
+
     } else if(
       style === "b" && bold === true ||
       style === "i" && italic === true){
         console.log("usuwam")
         style === "b" ? bold = false : italic = false;
-      
-        range.deleteContents();
-        range.insertNode(clonedRange)      
+        let htmlElementsToRemoveFormat = [];
+        console.log(range)
+        // range.commonAncestorContainer.parentNode.childNodes.forEach(child => {
+        //   htmlElementsToRemoveFormat.push(child);
+        // });
+        console.log(htmlElementsToRemoveFormat)
+        // range.deleteContents();
+        // range.insertNode(range)      
 
       }    
-          //   if(element.childNodes.length > 0){
-          //     console.log(element)
-          //   }
-          //   everyChild(element);
-          // })
-
-      // clonedRange.childNodes.
-      //   forEach(firstNode => {
-      //     let one = firstNode;
-
-      //     if (firstNode.nodeType == 3){
-      //     } else {
-
-      //       firstNode.childNodes.
-      //         forEach(secondNode => {
-      //           let two = secondNode;
-  
-      //           if(secondNode.nodeType == 3){
-      //             formatHtmlElement.appendChild(two.cloneNode(true));
-      //             one.appendChild(formatHtmlElement.cloneNode(true));
-      //             formatedRange.appendChild(formatHtmlElement.cloneNode(true)); 
-      //           } else {
-      //             one.appendChild(secondNode.cloneNode(true));
-  
-      //           }
-  
-
-      //         }) 
-      //           // clonedHtmlElements.push(element)
-      //           // console.log(element)
-      //           // clonedHtmltextContent.push(formatHtmlElement.textContent  = element.textContent)
-      //     }
-      //   }) 
-
-      // document.getElementById("editor2").appendChild(clonedRange);
-      // console.log(clonedHtmlElements); //traci dzieci
-      // console.log(clonedHtmltextContent);
-      // clonedHtmlElements.forEach((element, i) => {
-      //   element.textContent = clonedHtmltextContent[i]
-        // console.log(element)
-         //Taka logika dodaje pusty łamacz wiersza w czystym tekście, usuwa ostatni znak i dodaje akapit
-      // })        
+    // if(element.childNodes.length > 0){
+    //   console.log(element);
+    // }
+    // everyChild(element);    
     
     } catch(e) { console.log(e) }    
   
