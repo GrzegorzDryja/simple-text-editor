@@ -6,6 +6,7 @@ let unorderedList = false;
 document.addEventListener("selectionchange", () => {
   selection = document.getSelection();
 
+  //Check if selection is styled
   if (selection.anchorNode.parentNode.nodeName === "B"
     && selection.focusNode.parentNode.nodeName === "B"){
       bold = true;
@@ -88,7 +89,7 @@ function format(style){
       return formatHtmlElement;    
       }
        
-      function everyChild(tree){
+      function nodeTypeCheck(tree){
         if(tree.nodeType === 11){
           tree.replaceChildren(styleTextElement(tree.cloneNode(true)));    //Will work on paragraph (parent elements) later   
         }
@@ -96,32 +97,30 @@ function format(style){
           range.insertNode(tree);
       }
 
-      everyChild(clonedRange);
-
-    } else if(
-      style === "b" && bold === true ||
-      style === "i" && italic === true){
-        console.log("usuwam")
-        style === "b" ? bold = false : italic = false;
-        let htmlElementsToRemoveFormat = [];
-        console.log(range)
-        // range.commonAncestorContainer.parentNode.childNodes.forEach(child => {
-        //   htmlElementsToRemoveFormat.push(child);
-        // });
-        console.log(htmlElementsToRemoveFormat)
-        // range.deleteContents();
-        // range.insertNode(range)      
-
-      }    
-    // if(element.childNodes.length > 0){
-    //   console.log(element);
-    // }
-    // everyChild(element);    
+      nodeTypeCheck(clonedRange);
     
+    } else if( style === "b" && bold === true
+        || style === "i" && italic === true){
+          //Deactivate buttons
+          style === "b" ? bold = false : italic = false;
+          //Create new Node from selection parts and replace old one without his parent <b>
+          let dady = range.commonAncestorContainer.parentNode;      
+          // range.commonAncestorContainer.parentNode.parentNode.removeChild(dady);
+          let dadysText = document.createTextNode(dady.textContent);
+          let dadysTextContentArray = [];
+          if(dadysText.textContent.substring(0, selection.anchorOffset)){
+            dadysTextContentArray.push(dadysText.textContent.substring(0, selection.anchorOffset))
+          }
+          if(dadysText.textContent.substring(selection.anchorOffset, selection.focusOffset)){
+            dadysTextContentArray.push(dadysText.textContent.substring(selection.anchorOffset, selection.focusOffset));
+          }
+          if(dadysText.textContent.substring(selection.focusOffset, dadysText.length)){
+            dadysTextContentArray.push(dadysText.textContent.substring(selection.focusOffset, dadysText.length));
+          }
+          // range.insertNode(dadysText);
+      }    
     } catch(e) { console.log(e) }    
   
     selection.removeAllRanges();
-    selection.addRange(range);
-  
+    selection.addRange(range);  
 }
-
