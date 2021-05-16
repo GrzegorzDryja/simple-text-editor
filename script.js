@@ -3,6 +3,18 @@ let bold = false;
 let italic = false;
 let unorderedList = false;
 
+(() => {
+  const edi = document.getElementById("editor");
+  const ran = document.createRange();
+  selection = document.getSelection();
+
+  ran.setStart(edi.childNodes[0], 0)
+  ran.collapse(true)
+  
+  selection.removeAllRanges()
+  selection.addRange(ran)
+})()
+
 document.addEventListener("selectionchange", () => {
   selection = document.getSelection();
 
