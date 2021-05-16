@@ -53,7 +53,7 @@ document.getElementById("read").addEventListener("click", () => {
 
   reader.addEventListener("load", (event) => {
     const loadedFile = JSON.parse(event.target.result)
-    document.getElementById("editor2").innerHTML = loadedFile.innerHTML;
+    document.getElementById("editor").innerHTML = loadedFile.innerHTML;
   });
 
   reader.addEventListener("error", function(error) {
@@ -104,23 +104,58 @@ function format(style){
           //Deactivate buttons
           style === "b" ? bold = false : italic = false;
           //Create new Node from selection parts and replace old one without his parent <b>
-          let dady = range.commonAncestorContainer.parentNode;      
-          // range.commonAncestorContainer.parentNode.parentNode.removeChild(dady);
+          let dady = range.commonAncestorContainer.parentNode;
+          let selectedText = range.cloneContents();    
+          
           let dadysText = document.createTextNode(dady.textContent);
           let dadysTextContentArray = [];
+          let dadToInsert = document.createDocumentFragment();
+          //There is no check if childs have any parent node!
           if(dadysText.textContent.substring(0, selection.anchorOffset)){
-            dadysTextContentArray.push(dadysText.textContent.substring(0, selection.anchorOffset))
+            dadysTextContentArray
+            .push(dadysText.textContent.substring(0, selection.anchorOffset))
           }
-          if(dadysText.textContent.substring(selection.anchorOffset, selection.focusOffset)){
-            dadysTextContentArray.push(dadysText.textContent.substring(selection.anchorOffset, selection.focusOffset));
+          if(dadysText.textContent
+              .substring(selection.anchorOffset, selection.focusOffset)){
+            dadysTextContentArray
+              .push(dadysText.textContent
+                .substring(selection.anchorOffset, selection.focusOffset));
           }
-          if(dadysText.textContent.substring(selection.focusOffset, dadysText.length)){
-            dadysTextContentArray.push(dadysText.textContent.substring(selection.focusOffset, dadysText.length));
+          if(dadysText.textContent
+              .substring(selection.focusOffset, dadysText.length)){
+            dadysTextContentArray
+              .push(dadysText.textContent
+                .substring(selection.focusOffset, dadysText.length));
           }
-          // range.insertNode(dadysText);
-      }    
-    } catch(e) { console.log(e) }    
-  
+          dadysTextContentArray.forEach(dad => {
+            if(dad != selectedText.textContent){
+              let formated = document.createElement(style);
+              formated.appendChild(document.createTextNode(dad));
+              dadToInsert.appendChild(formated);
+            } else {
+              dadysText.textContent = dad;
+              dadToInsert.appendChild(dadysText);         
+            }
+          })
+          range.deleteContents();          
+          range.commonAncestorContainer.parentNode.parentNode
+            .removeChild(dady);          
+          range.insertNode(dadToInsert.cloneNode(true));
+          range.collapse(dady);
+        }    
+      } catch(e) { console.log(e) }   
+    //To keep selection motionless 
     selection.removeAllRanges();
     selection.addRange(range);  
+}
+
+function makeUnorderedList(){
+  const range = getSelection();
+  const content = range.extractContents()
+  const listItem = document.createElement("li");
+  let unorderedList = document.createElement("ul");
+
+  listItem.appendChild(content);
+  unorderedList.appendChild(listItem)
+  range.insertNode(unorderedList);
 }
