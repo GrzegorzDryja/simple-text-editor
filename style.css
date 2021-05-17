@@ -6,10 +6,13 @@
   -ms-user-select: none;
   user-select: none;
 }
-
 .active {
   font-weight: 900;
 }
 .activei{
   font-style: italic;
+}
+#editor{
+  background-color: azure;
+  padding: 10px;
 }
