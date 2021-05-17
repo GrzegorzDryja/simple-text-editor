@@ -1,19 +1,26 @@
+let editor = document.getElementById("editor");
 let selection;
 let bold = false;
 let italic = false;
 let unorderedList = false;
 
+//Activate caret on start (works on FF)
 (() => {
-  const edi = document.getElementById("editor");
   const ran = document.createRange();
   selection = document.getSelection();
 
-  ran.setStart(edi.childNodes[0], 0)
+  ran.setStart(editor.childNodes[0], 0)
   ran.collapse(true)
   
   selection.removeAllRanges()
   selection.addRange(ran)
 })()
+
+document.addEventListener("click", () => {
+  if(editor.textContent === "SIMPLE TEXT EDITOR"){
+    editor.innerHTML = "";
+  }
+})
 
 document.addEventListener("selectionchange", () => {
   selection = document.getSelection();
@@ -43,11 +50,11 @@ document.addEventListener("selectionchange", () => {
 })
 
 document.getElementById("save").addEventListener("click", () => {
-  const edited =
-    {innerHTML: `${document.getElementById("editor").innerHTML}`};
+  const editorted =
+    {innerHTML: `${editor.innerHTML}`};
   const a = document.createElement("a");
   const file =
-    new Blob([JSON.stringify(edited)], {type: "text/plain"});
+    new Blob([JSON.stringify(editorted)], {type: "text/plain"});
   a.href = URL.createObjectURL(file);
   a.download = `${Date()}.txt`;
   a.click();
@@ -65,7 +72,7 @@ document.getElementById("read").addEventListener("click", () => {
 
   reader.addEventListener("load", (event) => {
     const loadedFile = JSON.parse(event.target.result)
-    document.getElementById("editor").innerHTML = loadedFile.innerHTML;
+    editor.innerHTML = loadedFile.innerHTML;
   });
 
   reader.addEventListener("error", function(error) {
@@ -76,7 +83,7 @@ document.getElementById("read").addEventListener("click", () => {
 });
 
 function getSelection(){
-  const range = new Range();    
+  const range = new Range();
   //for right --> left selection
   // range.setStart(selection.focusNode, selection.focusOffset);
   // range.setEnd(selection.anchorNode, selection.anchorOffset);
@@ -87,16 +94,20 @@ function getSelection(){
 }
 
 function format(style){
-  const range = getSelection();
+  const range = getSelection();  
   const clonedRange = range.cloneContents();
-
+  
   try {    
     if(style === "b" && bold === false
       || style === "i" && italic === false){
 
-      function styleTextElement(elementToStyle) {   
+      function styleTextElement(elementToStyle) {
         let formatHtmlElement = document.createElement(style);
-            formatHtmlElement.appendChild(elementToStyle);
+            if(elementToStyle.textContent === ""){
+              formatHtmlElement.innerHTML = "&#8203;"
+            } else {
+              formatHtmlElement.appendChild(elementToStyle);
+            }
 
       return formatHtmlElement;    
       }
@@ -170,4 +181,7 @@ function makeUnorderedList(){
   listItem.appendChild(content);
   unorderedList.appendChild(listItem)
   range.insertNode(unorderedList);
+  range.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(range);  
 }

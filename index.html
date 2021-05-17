@@ -10,8 +10,10 @@
 <body>
   <div id="menuBar">
     <button id="save">Save as file</button>
-    <input type="file" id="file" />
+    <label for="file">Open file:</label>
+    <input type="file" id="file" accept=".txt"/>
     <button id="read">Read</button>
+    <hr>
     <a onclick="format('b')" id="bold" class="nonSelectable" >bold</a>
     <a onclick="format('i')" id="italic" class="nonSelectable">italic</a>
     <a onclick="makeUnorderedList()" class="nonSelectable">list</a>
@@ -19,7 +21,7 @@
   <div
     id="editor"
     contenteditable="true"
-    >&nbsp;</div>
+    >SIMPLE TEXT EDITOR</div>
   <script src="script.js"></script>
 </body>
 </html>
