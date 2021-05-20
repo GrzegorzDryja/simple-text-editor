@@ -24,29 +24,7 @@ document.addEventListener("click", () => {
 
 document.addEventListener("selectionchange", () => {
   selection = document.getSelection();
-
-  //Check if selection is styled
-  if (selection.anchorNode.parentNode.nodeName === "B"
-    && selection.focusNode.parentNode.nodeName === "B"){
-      bold = true;
-  } else {
-      bold = false;
-  }
-
-  bold ?
-  document.getElementById("bold").classList.add("active")
-  : document.getElementById("bold").classList.remove("active");
-
-  if (selection.anchorNode.parentNode.nodeName === "I"
-    && selection.focusNode.parentNode.nodeName === "I"){
-      italic = true;
-  } else {
-      italic = false;
-  }
-
-  italic ?
-  document.getElementById("italic").classList.add("activei")
-  : document.getElementById("italic").classList.remove("activei");
+  checkSelectionStyle();
 })
 
 document.getElementById("save").addEventListener("click", () => {
@@ -92,17 +70,58 @@ function getSelection(){
 
   return range;
 }
+//It should work not only on selection, but also on curent caret position
+function checkSelectionStyle(){
+  if (selection.anchorNode.parentNode.nodeName === "B"
+  && selection.focusNode.parentNode.nodeName === "B"){
+    bold = true;
+  } else {
+      bold = false;
+  }
+  if (selection.anchorNode.parentNode.nodeName === "I"
+    && selection.focusNode.parentNode.nodeName === "I"){
+      italic = true;
+  } else {
+      italic = false;
+  }
+
+  addClassToMenuStyle();
+}
+
+function addClassToMenuStyle(){
+  bold ?
+  document.getElementById("bold").classList.add("active")
+  : document.getElementById("bold").classList.remove("active");
+  
+  italic ?
+  document.getElementById("italic").classList.add("activei")
+  : document.getElementById("italic").classList.remove("activei");
+}
 
 function format(style){
   const range = getSelection();  
   const clonedRange = range.cloneContents();
+  const formatHtmlElement = document.createElement(style);
   
-  try {    
-    if(style === "b" && bold === false
+  try {
+    //Insert style in caret position works nice on Firefox
+    if(range.collapsed){
+      range.surroundContents(formatHtmlElement);
+      range.setStart(formatHtmlElement, 0);
+      range.collapse(true);
+      //Activate menu status
+      // if(style === "b"){
+      //   bold = true;
+      // }
+      // if(style === "i"){
+      //   italic = true;
+      // }
+      // addClassToMenuStyle();
+
+    } else if(style === "b" && bold === false
       || style === "i" && italic === false){
 
       function styleTextElement(elementToStyle) {
-        let formatHtmlElement = document.createElement(style);
             if(elementToStyle.textContent === ""){
               formatHtmlElement.innerHTML = "&#8203;"
             } else {
@@ -121,7 +140,8 @@ function format(style){
       }
 
       nodeTypeCheck(clonedRange);
-    
+
+    //Removing style
     } else if( style === "b" && bold === true
         || style === "i" && italic === true){
           //Deactivate buttons
