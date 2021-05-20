@@ -96,13 +96,20 @@ function getSelection(){
 function format(style){
   const range = getSelection();  
   const clonedRange = range.cloneContents();
+  const formatHtmlElement = document.createElement(style);
   
-  try {    
-    if(style === "b" && bold === false
+  try {
+    //Insert style in caret position
+    if(range.collapsed){
+      range.surroundContents(formatHtmlElement);
+      range.setStart(formatHtmlElement, 0);
+      range.collapse(true);
+      //Good to mark used style before selection start to works
+
+    } else if(style === "b" && bold === false
       || style === "i" && italic === false){
 
       function styleTextElement(elementToStyle) {
-        let formatHtmlElement = document.createElement(style);
             if(elementToStyle.textContent === ""){
               formatHtmlElement.innerHTML = "&#8203;"
             } else {
@@ -121,7 +128,8 @@ function format(style){
       }
 
       nodeTypeCheck(clonedRange);
-    
+
+    //Removing style
     } else if( style === "b" && bold === true
         || style === "i" && italic === true){
           //Deactivate buttons
