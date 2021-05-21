@@ -6,10 +6,10 @@
   -ms-user-select: none;
   user-select: none;
 }
-.active {
+.activeBold {
   font-weight: 900;
 }
-.activei{
+.activeItalic {
   font-style: italic;
 }
 #editor{

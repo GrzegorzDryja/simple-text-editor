@@ -24,7 +24,7 @@ document.addEventListener("click", () => {
 
 document.addEventListener("selectionchange", () => {
   selection = document.getSelection();
-  checkSelectionStyle();
+  //checkSelectionStyle(); this occures an error during caret flow formating
 })
 
 document.getElementById("save").addEventListener("click", () => {
@@ -70,16 +70,20 @@ function getSelection(){
 
   return range;
 }
-//It should work not only on selection, but also on curent caret position
+//It could be working not only on selection, but also on curent caret position
 function checkSelectionStyle(){
-  if (selection.anchorNode.parentNode.nodeName === "B"
-  && selection.focusNode.parentNode.nodeName === "B"){
+  const anchorParentParentNodeName = selection.anchorNode.parentNode.parentNode.nodeName;
+  const anchorParentNodeName = selection.anchorNode.parentNode.nodeName;
+  const focusParentNodeName = selection.focusNode.parentNode.nodeName;
+
+  if (anchorParentParentNodeName === "B"
+    || anchorParentNodeName === "B" && focusParentNodeName === "B"){
     bold = true;
   } else {
       bold = false;
   }
-  if (selection.anchorNode.parentNode.nodeName === "I"
-    && selection.focusNode.parentNode.nodeName === "I"){
+  if (anchorParentParentNodeName === "I"
+    || anchorParentNodeName === "I" && focusParentNodeName === "I"){
       italic = true;
   } else {
       italic = false;
@@ -89,22 +93,36 @@ function checkSelectionStyle(){
 }
 
 function addClassToMenuStyle(){
+  const boldMenuElement = document.getElementById("bold");
+  const italicMenuElement = document.getElementById("italic");
+
   bold ?
-  document.getElementById("bold").classList.add("active")
-  : document.getElementById("bold").classList.remove("active");
+  boldMenuElement.classList.add("activeBold")
+  : boldMenuElement.classList.remove("activeBold");
   
   italic ?
-  document.getElementById("italic").classList.add("activei")
-  : document.getElementById("italic").classList.remove("activei");
+  italicMenuElement.classList.add("activeItalic")
+  : italicMenuElement.classList.remove("activeItalic");
+}
+
+function compareStyleType(style, type){
+  return style === type;
 }
 
 function format(style){
   const range = getSelection();  
   const clonedRange = range.cloneContents();
   const formatHtmlElement = document.createElement(style);
+  //Doesn't works on two elements in the same time
+  bold = compareStyleType(style, "b");
+  italic = compareStyleType(style, "i");
+  addClassToMenuStyle();
   
+  //This should be splited for inserting by caret or inserting by selecetion
+  //and deleteing format of selection or stop formating writen text on caret postion
   try {
     //Insert style in caret position works nice on Firefox
+    //Style is added only on selecetionchange
     if(range.collapsed){
       range.surroundContents(formatHtmlElement);
       range.setStart(formatHtmlElement, 0);
@@ -127,7 +145,6 @@ function format(style){
             } else {
               formatHtmlElement.appendChild(elementToStyle);
             }
-
       return formatHtmlElement;    
       }
        
